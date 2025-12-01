@@ -1,0 +1,6 @@
+{
+  "name": "optimizer-backend",
+  "version": "1.0.0",
+  "description": "Proxy server for Prompt Optimizer and security purpose.",
+  "license": "MIT"
+}
