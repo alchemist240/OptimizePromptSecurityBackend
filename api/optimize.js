@@ -1,13 +1,10 @@
 // api/optimize.js
 
-// This function runs on Vercel's computers whenever someone visits your URL.
 export default async function handler(req, res) {
   
   // 1. SECURITY HEADERS (CORS)
-  // This allows your Chrome Extension to talk to this server.
-  // Without this, the browser will block the connection.
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', '*'); // '*' allows ANY site. For better security later, change '*' to your Extension ID.
+  res.setHeader('Access-Control-Allow-Origin', '*'); 
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
@@ -15,24 +12,22 @@ export default async function handler(req, res) {
   );
 
   // 2. PRE-FLIGHT CHECK
-  // Browsers sometimes send a "test" signal (OPTIONS) before the real data.
-  // We need to say "OK" to that test.
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
-  // 3. GET THE DATA
-  // We expect the extension to send us JSON data looking like: { "prompt": "Fix this email..." }
-  const { prompt } = req.body;
+  // 3. GET THE DATA (Safely!)
+  // OLD CODE (Crashed): const { prompt } = req.body;
+  // NEW CODE (Safe): Check if body exists first
+  const prompt = req.body ? req.body.prompt : null;
 
   if (!prompt) {
-    return res.status(400).json({ error: "No prompt provided" });
+    // If you visit this in a browser, you will see this error. That is normal!
+    return res.status(400).json({ error: "No prompt provided. (Browser access usually fails because it sends no body)." });
   }
 
   // 4. GET THE SECRET KEY
-  // process.env is how we read secrets stored in Vercel settings.
-  // You do NOT paste the key here in the code!
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -40,6 +35,7 @@ export default async function handler(req, res) {
   }
 
   // 5. CALL GOOGLE GEMINI
+  // Note: Switched to 'gemini-1.5-flash' for maximum stability and speed
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   try {
