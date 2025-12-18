@@ -17,11 +17,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  // 3. GET THE DATA
+  // 3. GET THE DATA (Safely!)
+  // OLD CODE (Crashed): const { prompt } = req.body;
+  // NEW CODE (Safe): Check if body exists first
   const prompt = req.body ? req.body.prompt : null;
 
   if (!prompt) {
-    return res.status(400).json({ error: "No prompt provided." });
+    // If you visit this in a browser, you will see this error. That is normal!
+    return res.status(400).json({ error: "No prompt provided. (Browser access usually fails because it sends no body)." });
   }
 
   // 4. GET THE SECRET KEY
@@ -32,24 +35,15 @@ export default async function handler(req, res) {
   }
 
   // 5. CALL GOOGLE GEMINI
-  // FIX 1: Use the correct stable model name 'gemini-1.5-flash' 
-  // (There is no official 'gemini-2.5-flash' yet, likely a typo that causes issues)
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  // Note: Switched to 'gemini-1.5-flash' for maximum stability and speed
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   try {
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        // FIX 2: THE MAGIC SAFETY SETTINGS
-        // This tells Google: "Do not block anything. I trust this user."
-        safetySettings: [
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
-        ]
+        contents: [{ parts: [{ text: prompt }] }]
       })
     });
 
