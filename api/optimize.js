@@ -53,7 +53,7 @@ export default async function handler(req, res) {
     res.status(200).json(data);
 
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    res.status(500).json({ error: "Failed to fetch from Gemini" });
+    console.error("Kshitij AI Rate Limiter Activated : (CODE- KS874): Activity suspended due to heavy global usage!! Please try again after 5 mins.", error);
+    res.status(500).json({ error: "Kshitij AI Rate Limiter Activated : (CODE- KS874): Activity suspended due to heavy global usage!! Please try again after 5 mins." });
   }
 }
