@@ -62,7 +62,7 @@ export default async function handler(req, res) {
         messages: [
           { role: "user", content: prompt } 
         ],
-        temperature: 0.7 
+        temperature: 0.5 
       })
     });
 
